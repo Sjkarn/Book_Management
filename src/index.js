@@ -2,21 +2,25 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const route = require("./route/route");
+const cors = require("cors");
+
+app.use(cors());
 
 app.use(express.json());
 
 mongoose.set("strictQuery", true);
+
 mongoose
-    .connect(
-        "mongodb+srv://SAURABH:Soa4GdK4yRvlVN5i@cluster0.umtgp.mongodb.net/group5Database",
-        { useNewUrlParser: true }
-    )
-    .then(() => console.log("Connected to database..."))
-    .catch((err) => console.log(err));
+  .connect(
+    "mongodb+srv://SAURABH:Soa4GdK4yRvlVN5i@cluster0.umtgp.mongodb.net/group5Database",
+    { useNewUrlParser: true }
+  )
+  .then(() => console.log("Connected to database..."))
+  .catch((err) => console.log(err));
 
 app.use("/", route);
 
 app.listen(3000, (err) => {
-    if (err) console.log(err.message);
-    console.log("Application is running on port 3000...");
+  if (err) console.log(err.message);
+  console.log("Application is running on port 3000...");
 });

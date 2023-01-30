@@ -41,7 +41,7 @@ exports.authorisation = async function (req, res, next) {
         .send({ status: false, message: "Invalid bookId." });
 
     const book = await BookModel.findOne({ _id: bookId, isDeleted: false });
-    
+
     if (!book)
       return res
         .status(404)

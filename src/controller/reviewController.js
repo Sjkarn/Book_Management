@@ -189,7 +189,7 @@ exports.deleteReview = async function (req, res) {
         if (!book)
             return res
                 .status(404)
-                .send({ staus: false, message: "Book not found." });
+                .send({ status: false, message: "Book not found." });
 
         res.status(200).send({ status: true, message: "Review is deleted succesfully." });
     } catch (err) {

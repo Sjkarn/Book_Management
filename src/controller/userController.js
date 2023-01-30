@@ -79,7 +79,8 @@ exports.createUser = async function (req, res) {
     if (address) {
       if (
         address.pincode &&
-        (address.pincode.toString().trim().length != 6 || isNaN(address.pincode))
+        (address.pincode.toString().trim().length != 6 ||
+          isNaN(address.pincode))
       )
         return res
           .status(400)
@@ -90,10 +91,11 @@ exports.createUser = async function (req, res) {
           .status(400)
           .send({ status: false, message: "Please provide valid city name." });
 
-
-      if(address.pincode && address.pincode.trim()) add.pincode = address.pincode.trim();
-      if(address.city && address.city.trim()) add.city = address.city.trim();
-      if(address.street && address.street.trim()) add.street = address.street.trim();
+      if (address.pincode && address.pincode.trim())
+        add.pincode = address.pincode.trim();
+      if (address.city && address.city.trim()) add.city = address.city.trim();
+      if (address.street && address.street.trim())
+        add.street = address.street.trim();
     }
 
     let check = await userModel.findOne({ $or: [{ email }, { phone }] });
