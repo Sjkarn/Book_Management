@@ -1,4 +1,5 @@
 const { default: mongoose, isValidObjectId } = require("mongoose");
+const { uploadFile } = require("../middleware/aws");
 const BookModel = require("../model/BookModel");
 const ReviewModel = require("../model/ReviewModel");
 const validation = require("../validator/validation");
@@ -11,12 +12,10 @@ exports.createBook = async (req, res) => {
     let data = req.body;
     let fields = Object.keys(data);
     if (fields.length == 0)
-      return res
-        .status(400)
-        .send({
-          status: false,
-          message: "Please provide data for create a book.",
-        });
+      return res.status(400).send({
+        status: false,
+        message: "Please provide data for create a book.",
+      });
     fields.forEach((x) => (data[x] = data[x].toString().trim()));
 
     let {
@@ -29,6 +28,7 @@ exports.createBook = async (req, res) => {
       releasedAt,
       isDeleted,
       reviews,
+      bookCover,
       ...rest
     } = data; //Destructuring
 
@@ -131,7 +131,19 @@ exports.createBook = async (req, res) => {
 
     /*---------------------------------------------------------------------------------------*/
 
-    let createBook = await BookModel.create(data);
+    let files = req.files;
+    let uploadedFileURL;
+    if (files && files.length > 0) {
+      uploadedFileURL = await uploadFile(files[0]);
+    } else {
+      return res.status(400).send({ status: false, message: "No file found" });
+    }
+
+    /*---------------------------------------------------------------------------------------*/
+    let createBook = await BookModel.create({
+      ...data,
+      bookCover: uploadedFileURL,
+    });
 
     return res.status(201).send({
       status: true,
@@ -148,7 +160,6 @@ exports.createBook = async (req, res) => {
 exports.getBooks = async function (req, res) {
   try {
     const queries = req.query;
-    queries.title = queries.title.trim().toLowerCase();
     const books = await BookModel.find({ ...queries, isDeleted: false }).select(
       {
         title: 1,
@@ -204,7 +215,7 @@ exports.updateBook = async function (req, res) {
     if (Object.keys(data).length == 0) {
       return res.status(400).send({ status: false, message: "Body is empty" });
     }
-    const { title, excerpt, releasedAt, ISBN, ...rest } = data;
+    let { title, excerpt, releasedAt, ISBN, ...rest } = data;
     if (Object.keys(rest).length != 0) {
       //Checking extra attributes are added or not
       return res.status(400).send({
@@ -223,22 +234,18 @@ exports.updateBook = async function (req, res) {
     }
     if (excerpt) {
       if (!isValid(excerpt)) {
-        return res
-          .status(400)
-          .send({
-            status: false,
-            message: "The excerpt is in inValid Format.",
-          });
+        return res.status(400).send({
+          status: false,
+          message: "The excerpt is in inValid Format.",
+        });
       }
     }
     if (releasedAt) {
       if (!isVAlidDate(releasedAt)) {
-        return res
-          .status(400)
-          .send({
-            status: false,
-            message: "Date must be in YYYY-MM-DD format.",
-          });
+        return res.status(400).send({
+          status: false,
+          message: "Date must be in YYYY-MM-DD format.",
+        });
       }
     }
     if (ISBN) {

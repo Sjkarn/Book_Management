@@ -1,19 +1,24 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const app = express();
-const route = require("./route/route");
 const cors = require("cors");
+const multer = require("multer");
+const route = require("./route/route");
+const app = express();
+
+app.use(express.json());
 
 app.use(cors());
 
-app.use(express.json());
+app.use(multer().any());
 
 mongoose.set("strictQuery", true);
 
 mongoose
   .connect(
     "mongodb+srv://SAURABH:Soa4GdK4yRvlVN5i@cluster0.umtgp.mongodb.net/group5Database",
-    { useNewUrlParser: true }
+    {
+      useNewUrlParser: true,
+    }
   )
   .then(() => console.log("Connected to database..."))
   .catch((err) => console.log(err));
